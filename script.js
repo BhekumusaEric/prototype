@@ -69,15 +69,37 @@ class RouteMateDashboard {
     }
 
     getMockData(endpoint) {
-        // Fallback mock data for demo purposes
+        // High-fidelity fallback mock data for Standalone Live Demo
         if (endpoint === '/fleet') return [
-            { id: 'V-001', model: 'Scania EV', status: 'active', battery_health: 98, current_charge: 75, location: { address: 'N1 North, Midrand' }, driver_id: 'You' },
-            { id: 'V-002', model: 'Volvo Electric', status: 'active', battery_health: 95, current_charge: 40, location: { address: 'M1 South, JHB' }, driver_id: 'Sylvia' }
+            { id: 'EV-1001', model: 'Scania 25 P', status: 'active', battery_health: 98, current_charge: 75, location: { address: 'N1 North, Midrand' }, driver_id: 'You', fatigue_level: 'Optimal', community_score: 95, sustainability_metrics: { co2_saved_kg: 245, energy_efficiency_kwh_per_100km: 112, cost_savings_vs_ice: 1250 } },
+            { id: 'EV-1002', model: 'Volvo FH Electric', status: 'active', battery_health: 95, current_charge: 40, location: { address: 'M1 South, JHB' }, driver_id: 'Sylvia Mathe', fatigue_level: 'Optimal', community_score: 120, sustainability_metrics: { co2_saved_kg: 210, energy_efficiency_kwh_per_100km: 118, cost_savings_vs_ice: 1100 } },
+            { id: 'EV-1003', model: 'Mercedes eActros', status: 'active', battery_health: 92, current_charge: 85, location: { address: 'N3, Harrismith' }, driver_id: 'John Mathe', fatigue_level: 'High', community_score: 85, sustainability_metrics: { co2_saved_kg: 180, energy_efficiency_kwh_per_100km: 105, cost_savings_vs_ice: 950 } },
+            { id: 'EV-1004', model: 'DAF CF Electric', status: 'charging', battery_health: 89, current_charge: 15, location: { address: 'N2, Cape Town' }, driver_id: 'Miriam Mathe', fatigue_level: 'Optimal', community_score: 110, sustainability_metrics: { co2_saved_kg: 260, energy_efficiency_kwh_per_100km: 122, cost_savings_vs_ice: 1400 } }
         ];
-        if (endpoint === '/dashboard/summary') return { total_vehicles: 12, active_vehicles: 8, charging_vehicles: 2, maintenance_vehicles: 2, avg_battery_health: 92 };
+
+        if (endpoint === '/dashboard/summary') return {
+            total_vehicles: 12,
+            active_vehicles: 9,
+            charging_vehicles: 2,
+            maintenance_vehicles: 1,
+            avg_battery_health: 94,
+            sustainability_impact: {
+                total_co2_saved_kg: 1250,
+                avg_energy_efficiency: 115,
+                trees_equivalent: 57,
+                total_monthly_savings: 15400
+            }
+        };
+
+        if (endpoint === '/alerts') return [
+            { id: 'alert_1', type: 'community', priority: 'high', message: 'Sylvia just reached her destination safely! Bravo team.', timestamp: new Date().toISOString() },
+            { id: 'alert_2', type: 'maintenance', priority: 'medium', message: 'Vehicle EV-1004 battery cooling optimization recommended.', timestamp: new Date().toISOString() }
+        ];
+
         if (endpoint === '/insights') return {
             insights: [
-                { type: 'Safety', priority: 'high', message: 'High crosswinds detected on N3 route.', action: 'Advise drivers to maintain safe distance.', vehicles: ['V-004', 'V-007'] }
+                { type: 'Safety', priority: 'high', message: 'High crosswinds detected on N3 route near Van Reenen.', action: 'Advise drivers to maintain safe distance.', vehicles: ['EV-1003'] },
+                { type: 'Community', priority: 'medium', message: 'Sylvia and John are within 5km of each other.', action: 'Enable Buddy Radio Bridge for peer-support.', vehicles: ['EV-1002', 'EV-1003'] }
             ]
         };
         return [];
