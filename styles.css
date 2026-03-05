@@ -1,0 +1,586 @@
+:root {
+    --wesbank-blue: #003366;
+    --wesbank-gold: #c5a059;
+    --community-warm: #ff8c42;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-light: #f8f9fa;
+    --accent-success: #2ecc71;
+    --accent-danger: #e74c3c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    background: radial-gradient(circle at top right, #001f3f, #000c18);
+    min-height: 100vh;
+    color: var(--text-light);
+    overflow-x: hidden;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar: Buddy Radio */
+.sidebar {
+    width: 280px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    z-index: 100;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+}
+
+.sidebar-header i {
+    font-size: 1.5rem;
+    color: var(--wesbank-gold);
+    animation: pulse 2s infinite;
+}
+
+.buddy-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.buddy-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.buddy-item:hover {
+    border-color: var(--wesbank-gold);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.buddy-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--wesbank-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--wesbank-blue);
+}
+
+.buddy-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.buddy-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.buddy-status {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.buddy-controls {
+    margin-top: 1rem;
+}
+
+.radio-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    border: none;
+    background: var(--wesbank-gold);
+    color: var(--wesbank-blue);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+}
+
+/* Main Dashboard Area */
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--wesbank-gold);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--wesbank-blue);
+    font-size: 1.8rem;
+}
+
+.logo-text h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+
+.logo-text span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--wesbank-gold);
+}
+
+.header-stats {
+    display: flex;
+    gap: 2.5rem;
+}
+
+.stat-item {
+    text-align: right;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Cards */
+.card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.card h3 {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.1rem;
+    color: var(--wesbank-gold);
+}
+
+/* Rewards Card */
+.rewards-card {
+    background: linear-gradient(135deg, rgba(197, 160, 89, 0.2), rgba(0, 51, 102, 0.4));
+    border: 1px solid var(--wesbank-gold);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.reward-badge {
+    background: var(--accent-success);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.reward-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+}
+
+.reward-icon.checkers {
+    font-size: 2rem;
+    color: var(--wesbank-gold);
+}
+
+.reward-title {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.reward-desc {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.claim-btn {
+    margin-left: auto;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent-success);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--wesbank-gold);
+    border-radius: 4px;
+    box-shadow: 0 0 10px var(--wesbank-gold);
+}
+
+/* Map Placeholder */
+.map-placeholder {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    height: 300px;
+}
+
+.mock-map {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7) contrast(1.2);
+}
+
+.map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.driver-pin {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: var(--wesbank-gold);
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 15px var(--wesbank-gold);
+}
+
+.driver-pin.you {
+    background: var(--accent-success);
+    left: 50%;
+    top: 50%;
+}
+
+.driver-pin.sylvia {
+    left: 45%;
+    top: 48%;
+    animation: float 3s infinite;
+}
+
+.driver-pin.john {
+    left: 55%;
+    top: 52%;
+}
+
+/* Alerts */
+.alerts-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.alert {
+    min-width: 320px;
+    background: var(--glass-bg);
+    border-left: 5px solid var(--wesbank-gold);
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+.alert.high {
+    border-left-color: var(--accent-danger);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/* Modal */
+.modal-content {
+    background: rgba(0, 12, 24, 0.95);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-light);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 80px;
+        padding: 1rem;
+    }
+
+    .sidebar-header h2,
+    .buddy-info,
+    .radio-btn span,
+    .radio-btn i {
+        display: none;
+    }
+
+    .radio-btn i {
+        display: block;
+    }
+}
+
+/* Integrated Document Views CSS */
+.header-nav {
+    display: flex;
+    gap: 1.2rem;
+    margin: 0 2rem;
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--wesbank-gold);
+    transform: translateY(-2px);
+}
+
+.nav-btn.active {
+    background: var(--wesbank-gold);
+    color: var(--wesbank-blue);
+    border-color: var(--wesbank-gold);
+    box-shadow: 0 0 15px rgba(197, 160, 89, 0.4);
+}
+
+.view-section {
+    transition: opacity 0.4s ease;
+}
+
+.view-section.hidden {
+    display: none !important;
+    opacity: 0;
+}
+
+/* Document View Layouts */
+.doc-view {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 4rem;
+    border-radius: 30px;
+    background: rgba(0, 15, 30, 0.4);
+}
+
+.doc-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+.doc-header h2 {
+    font-size: 2.5rem;
+    color: var(--wesbank-gold);
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+
+.doc-body {
+    line-height: 1.8;
+}
+
+.script-body .scene {
+    margin-bottom: 3rem;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 18px;
+    border-left: 6px solid var(--wesbank-blue);
+    transition: transform 0.3s ease;
+}
+
+.script-body .scene:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.script-body h3 {
+    color: var(--wesbank-gold);
+    margin-bottom: 1.2rem;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.highlight-scene {
+    border-color: var(--wesbank-gold) !important;
+    background: rgba(197, 160, 89, 0.05) !important;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.spec-card {
+    padding: 2.5rem;
+    border-radius: 20px;
+}
+
+.spec-card h3 {
+    color: var(--wesbank-gold);
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+}
+
+.spec-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.spec-card li {
+    margin-bottom: 1rem;
+    padding-left: 1.8rem;
+    position: relative;
+    font-size: 1rem;
+}
+
+.spec-card li::before {
+    content: "➜";
+    color: var(--wesbank-gold);
+    position: absolute;
+    left: 0;
+}
+
+.spec-footer {
+    padding: 3rem;
+    text-align: center;
+    border-radius: 20px;
+    background: rgba(197, 160, 89, 0.05);
+}
+
+.spec-footer blockquote {
+    font-size: 1.6rem;
+    font-style: italic;
+    color: var(--wesbank-gold);
+    max-width: 800px;
+    margin: 0 auto;
+}

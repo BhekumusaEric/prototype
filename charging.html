@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charging Stations - WesBank FML EV Analytics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-charging-station"></i>
+                    <h1>Charging Station Management</h1>
+                </div>
+                <nav class="nav-links">
+                    <a href="index.html"><i class="fas fa-dashboard"></i> Dashboard</a>
+                    <a href="charging.html" class="active"><i class="fas fa-bolt"></i> Charging</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Charging Overview -->
+            <section class="charging-overview">
+                <div class="overview-cards">
+                    <div class="overview-card available">
+                        <div class="card-icon">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="availableSlots">--</h3>
+                            <p>Available Slots</p>
+                        </div>
+                    </div>
+                    <div class="overview-card occupied">
+                        <div class="card-icon">
+                            <i class="fas fa-battery-three-quarters"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="occupiedSlots">--</h3>
+                            <p>Occupied Slots</p>
+                        </div>
+                    </div>
+                    <div class="overview-card cost">
+                        <div class="card-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3 id="avgCost">--</h3>
+                            <p>Avg Cost/kWh</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charging Stations Grid -->
+            <section class="stations-section">
+                <h2><i class="fas fa-map-marker-alt"></i> Charging Stations</h2>
+                <div id="stationsGrid" class="stations-grid">
+                    <!-- Stations will be populated here -->
+                </div>
+            </section>
+
+            <!-- Charging Prediction Tool -->
+            <section class="prediction-section">
+                <div class="card">
+                    <h3><i class="fas fa-calculator"></i> Charging Prediction</h3>
+                    <div class="prediction-form">
+                        <select id="predictionVehicle" class="form-select">
+                            <option value="">Select Vehicle</option>
+                        </select>
+                        <input type="number" id="routeDistance" placeholder="Route Distance (km)" class="form-input">
+                        <button id="predictCharging" class="predict-btn">
+                            <i class="fas fa-search"></i> Predict Charging Needs
+                        </button>
+                    </div>
+                    <div id="predictionResults" class="prediction-results">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        class ChargingManager {
+            constructor() {
+                this.apiBase = 'http://localhost:5000/api';
+                this.stations = [];
+                this.vehicles = [];
+                this.init();
+            }
+
+            async init() {
+                await this.loadData();
+                this.setupEventListeners();
+            }
+
+            async loadData() {
+                try {
+                    const [stations, vehicles] = await Promise.all([
+                        this.fetchData('/charging/stations'),
+                        this.fetchData('/fleet')
+                    ]);
+
+                    this.stations = stations;
+                    this.vehicles = vehicles;
+
+                    this.renderOverview();
+                    this.renderStations();
+                    this.populateVehicleSelect();
+
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                }
+            }
+
+            async fetchData(endpoint) {
+                const response = await fetch(`${this.apiBase}${endpoint}`);
+                return await response.json();
+            }
+
+            renderOverview() {
+                const totalSlots = this.stations.reduce((sum, station) => sum + station.total_slots, 0);
+                const availableSlots = this.stations.reduce((sum, station) => sum + station.available_slots, 0);
+                const occupiedSlots = totalSlots - availableSlots;
+                const avgCost = this.stations.reduce((sum, station) => sum + station.cost_per_kwh, 0) / this.stations.length;
+
+                document.getElementById('availableSlots').textContent = availableSlots;
+                document.getElementById('occupiedSlots').textContent = occupiedSlots;
+                document.getElementById('avgCost').textContent = `R${avgCost.toFixed(2)}`;
+            }
+
+            renderStations() {
+                const grid = document.getElementById('stationsGrid');
+                
+                grid.innerHTML = this.stations.map(station => `
+                    <div class="station-card">
+                        <div class="station-header">
+                            <h4>${station.name}</h4>
+                            <span class="station-type ${station.fast_charge ? 'fast' : 'standard'}">
+                                ${station.fast_charge ? 'Fast Charge' : 'Standard'}
+                            </span>
+                        </div>
+                        <div class="station-details">
+                            <div class="detail-row">
+                                <span>Available Slots:</span>
+                                <span class="slots ${station.available_slots === 0 ? 'full' : 'available'}">
+                                    ${station.available_slots}/${station.total_slots}
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span>Cost per kWh:</span>
+                                <span>R${station.cost_per_kwh}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span>Location:</span>
+                                <span>${station.lat.toFixed(4)}, ${station.lng.toFixed(4)}</span>
+                            </div>
+                        </div>
+                        <div class="station-status">
+                            <div class="status-indicator ${station.available_slots > 0 ? 'available' : 'full'}"></div>
+                            ${station.available_slots > 0 ? 'Available' : 'Full'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            populateVehicleSelect() {
+                const select = document.getElementById('predictionVehicle');
+                select.innerHTML = '<option value="">Select Vehicle</option>' +
+                    this.vehicles.map(vehicle => 
+                        `<option value="${vehicle.id}">${vehicle.id} - ${vehicle.model}</option>`
+                    ).join('');
+            }
+
+            async predictCharging() {
+                const vehicleId = document.getElementById('predictionVehicle').value;
+                const routeDistance = document.getElementById('routeDistance').value;
+
+                if (!vehicleId || !routeDistance) {
+                    alert('Please select a vehicle and enter route distance');
+                    return;
+                }
+
+                try {
+                    const prediction = await fetch(`${this.apiBase}/charging/predict/${vehicleId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ route_distance_km: parseFloat(routeDistance) })
+                    }).then(res => res.json());
+
+                    this.displayPredictionResults(prediction);
+
+                } catch (error) {
+                    console.error('Error predicting charging needs:', error);
+                }
+            }
+
+            displayPredictionResults(prediction) {
+                const container = document.getElementById('predictionResults');
+                
+                container.innerHTML = `
+                    <div class="prediction-summary">
+                        <h4>Charging Prediction Results</h4>
+                        <div class="prediction-grid">
+                            <div class="prediction-item">
+                                <span>Energy Needed:</span>
+                                <span>${prediction.energy_needed_kwh} kWh</span>
+                            </div>
+                            <div class="prediction-item">
+                                <span>Current Energy:</span>
+                                <span>${prediction.current_energy_kwh} kWh</span>
+                            </div>
+                            <div class="prediction-item">
+                                <span>Charging Required:</span>
+                                <span class="${prediction.charging_required ? 'required' : 'not-required'}">
+                                    ${prediction.charging_required ? 'Yes' : 'No'}
+                                </span>
+                            </div>
+                            ${prediction.charging_required ? `
+                                <div class="prediction-item">
+                                    <span>Charging Needed:</span>
+                                    <span>${prediction.charging_needed_kwh} kWh</span>
+                                </div>
+                                <div class="prediction-item">
+                                    <span>Estimated Time:</span>
+                                    <span>${prediction.estimated_charging_time} hours</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    ${prediction.recommended_stations.length > 0 ? `
+                        <div class="recommended-stations">
+                            <h4>Recommended Stations</h4>
+                            ${prediction.recommended_stations.map(station => `
+                                <div class="recommended-station">
+                                    <strong>${station.name}</strong>
+                                    <div>Available: ${station.available_slots}/${station.total_slots} slots</div>
+                                    <div>Cost: R${station.cost_per_kwh}/kWh</div>
+                                    <div>Type: ${station.fast_charge ? 'Fast Charge' : 'Standard'}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+                
+                container.classList.add('show');
+            }
+
+            setupEventListeners() {
+                document.getElementById('predictCharging').onclick = () => this.predictCharging();
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChargingManager();
+        });
+    </script>
+
+    <style>
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .charging-overview {
+            margin-bottom: 2rem;
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .overview-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .overview-card.available .card-icon { background: #27ae60; }
+        .overview-card.occupied .card-icon { background: #3498db; }
+        .overview-card.cost .card-icon { background: #f39c12; }
+
+        .card-content h3 {
+            font-size: 2rem;
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .card-content p {
+            margin: 0;
+            color: #7f8c8d;
+        }
+
+        .stations-section h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .station-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .station-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .station-header h4 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .station-type {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .station-type.fast {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+
+        .station-type.standard {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .station-details {
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .slots.full {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .slots.available {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .station-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.available {
+            background: #27ae60;
+        }
+
+        .status-indicator.full {
+            background: #e74c3c;
+        }
+
+        .prediction-section {
+            margin-top: 2rem;
+        }
+
+        .prediction-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .form-select,
+        .form-input {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .predict-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        .predict-btn:hover {
+            background: #2980b9;
+        }
+
+        .prediction-results {
+            display: none;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .prediction-results.show {
+            display: block;
+        }
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .prediction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .required {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .not-required {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .recommended-stations {
+            margin-top: 1rem;
+        }
+
+        .recommended-station {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #27ae60;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WesBank FML - EV Fleet Analytics</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar: Buddy Radio -->
+        <aside class="sidebar" id="buddyRadio">
+            <div class="sidebar-header">
+                <i class="fas fa-broadcast-tower"></i>
+                <h2>Buddy Radio</h2>
+            </div>
+            <div class="buddy-list" id="buddyList">
+                <!-- Mock buddies will be populated here -->
+                <div class="buddy-item pulse">
+                    <div class="buddy-avatar">S</div>
+                    <div class="buddy-info">
+                        <span class="buddy-name">Sylvia Mathe</span>
+                        <span class="buddy-status">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="buddy-controls">
+                <button class="radio-btn active"><i class="fas fa-microphone"></i> Hold to Talk</button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Area -->
+        <div class="main-wrapper">
+            <!-- Header -->
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>RouteMate</h1>
+                            <span>by WesBank Fleet FML</span>
+                        </div>
+                    </div>
+
+                    <nav class="header-nav">
+                        <button class="nav-btn active" onclick="dashboard.switchView('dashboard')">Dashboard</button>
+                        <button class="nav-btn" onclick="dashboard.switchView('script')">Promo Script</button>
+                        <button class="nav-btn" onclick="dashboard.switchView('specs')">Technical Details</button>
+                    </nav>
+
+                    <div class="header-stats">
+                        <div class="stat-item fatigue-status">
+                            <span class="stat-value text-success" id="driverFatigue">Optimal</span>
+                            <span class="stat-label">Driver Focus</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="activeVehicles">--</span>
+                            <span class="stat-label">Active Pairs</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="communityPoints">--</span>
+                            <span class="stat-label">Community Points</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Dashboard View -->
+                <section id="dashboardView" class="view-section">
+                    <!-- Alerts Section -->
+                    <section class="alerts-section">
+                        <h2><i class="fas fa-shield-alt"></i> Safety & Community Alerts</h2>
+                        <div id="alertsContainer" class="alerts-container">
+                            <!-- Alerts will be populated here -->
+                        </div>
+                    </section>
+
+                    <!-- Dashboard Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Community Rewards Card -->
+                        <div class="card rewards-card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-gift"></i> Community Rewards</h3>
+                                <span class="reward-badge">New Milestone!</span>
+                            </div>
+                            <div class="rewards-content">
+                                <div class="reward-item active">
+                                    <div class="reward-icon checkers">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div class="reward-details">
+                                        <span class="reward-title">R500 Checkers Voucher</span>
+                                        <span class="reward-desc">Safety Milestone reached by Mathe Fleet</span>
+                                    </div>
+                                    <button class="claim-btn">Claim</button>
+                                </div>
+                            </div>
+                            <div class="reward-progress">
+                                <div class="progress-label">Next Reward: R200 Airtime</div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fleet Overview -->
+                        <div class="card fleet-overview">
+                            <h3><i class="fas fa-users"></i> Local Community Map</h3>
+                            <div class="map-placeholder">
+                                <div class="map-overlay">
+                                    <div class="driver-pin sylvia" title="Sylvia (Near)"></div>
+                                    <div class="driver-pin john" title="John (Nearby)"></div>
+                                    <div class="driver-pin you" title="You"></div>
+                                </div>
+                                <img src="https://maps.googleapis.com/maps/api/staticmap?center=-26.2041,28.0473&zoom=13&size=600x300&key=YOUR_API_KEY_HERE"
+                                    alt="Community Map" class="mock-map">
+                            </div>
+                        </div>
+
+                        <!-- Fleet Insights -->
+                        <div class="card fleet-insights">
+                            <h3><i class="fas fa-brain"></i> Human-Centered Insights</h3>
+                            <div id="insightsContainer" class="insights-container">
+                                <!-- Insights will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Vehicle List -->
+                        <div class="card vehicle-list">
+                            <h3><i class="fas fa-truck-moving"></i> Connected Fleet</h3>
+                            <div class="vehicle-controls">
+                                <input type="text" id="vehicleSearch" placeholder="Search drivers..."
+                                    class="search-input">
+                            </div>
+                            <div id="vehicleListContainer" class="vehicle-list-container">
+                                <!-- Vehicle list will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Route Optimization -->
+                        <div class="card route-optimization">
+                            <h3><i class="fas fa-magic"></i> Community-Shared Route</h3>
+                            <div class="route-form">
+                                <select id="routeVehicle" class="route-select">
+                                    <option value="">Select Vehicle</option>
+                                </select>
+                                <input type="text" id="startLocation" placeholder="Current Location"
+                                    class="route-input">
+                                <input type="text" id="endLocation" placeholder="Delivery Target" class="route-input">
+                                <button id="optimizeRoute" class="optimize-btn">
+                                    <i class="fas fa-sync-alt"></i> Calculate Human-Centered Route
+                                </button>
+                            </div>
+                            <div id="routeResults" class="route-results">
+                                <!-- Route results will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Script View -->
+                <section id="scriptView" class="view-section hidden">
+                    <div class="doc-view glass">
+                        <div class="doc-header">
+                            <h2><i class="fas fa-film"></i> RouteMate: The Power of Community</h2>
+                            <p class="doc-meta">120-Second Cinematic Promo Script</p>
+                        </div>
+                        <div class="doc-body script-body">
+                            <article class="scene">
+                                <h3>SCENE 1: THE DISCOVERY (0:00 - 0:20)</h3>
+                                <p><strong>VISUAL:</strong> High-energy split-screen. Four drivers in their trucks,
+                                    navigating different terrains: urban Joburg, misty Midlands, a dusty Northern Cape
+                                    road, and a rainy Cape Town harbor.</p>
+                                <p><strong>SYLVIA:</strong> "Wait... RouteMate says there are three drivers within 5kms
+                                    of my route. John, Miriam, and Ron? All 'Mathe'? Did I just find my cousins on the
+                                    long haul?"</p>
+                            </article>
+
+                            <article class="scene">
+                                <h3>SCENE 2: THE HUMAN-CENTERED EDGE (0:20 - 0:45)</h3>
+                                <p><strong>VISUAL:</strong> Sylvia is driving. The app interface on the screen shows a
+                                    "Driver Health Monitor." A subtle red glow appears on the edge of the phone screen.
+                                </p>
+                                <p><strong>NARRATOR:</strong> "In the old days, you were alone with your fatigue. But at
+                                    Wesbank Fleet FML, we believe the most important part of the vehicle... is the
+                                    person behind the wheel."</p>
+                            </article>
+
+                            <article class="scene">
+                                <h3>SCENE 3: THE INTERVENTION (0:45 - 1:15)</h3>
+                                <p><strong>MIRIAM:</strong> "Sylvia? I see your alert, sis. You sound tired. Stay with
+                                    me. Tell me about that school trip your daughter is planning."</p>
+                                <p><strong>JOHN:</strong> "Don't worry about the fuel stop, Sylvia. I’m pulling over at
+                                    the next Engen. I’ve got water, a sandwich, and I’m staying right here."</p>
+                            </article>
+
+                            <article class="scene highlight-scene">
+                                <h3>SCENE 4: THE WESBANK PAYOFF (1:15 - 1:45)</h3>
+                                <p><strong>VISUAL:</strong> Montage of the four drivers meeting. Sylvia looks recovered.
+                                </p>
+                                <p><strong>SYLVIA:</strong> "Check your apps! Our team score just hit the 'Safety
+                                    Milestone.' Thandeka’s excursion snacks are on Wesbank today!"</p>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Technical Details View -->
+                <section id="specsView" class="view-section hidden">
+                    <div class="doc-view glass">
+                        <div class="doc-header">
+                            <h2><i class="fas fa-microchip"></i> Technical & Human-Centered Detail</h2>
+                        </div>
+                        <div class="doc-body specs-body">
+                            <div class="specs-grid">
+                                <div class="spec-card glass">
+                                    <h3>Layer A: Proactive Fatigue Monitoring</h3>
+                                    <p>Using <strong>Biometric Analysis</strong> to detect cognitive load before it
+                                        becomes dangerous.</p>
+                                    <ul>
+                                        <li>Voice Sentiment Analysis</li>
+                                        <li>Steering Pattern Recognition</li>
+                                        <li>Automatic Buddy Escalation</li>
+                                    </ul>
+                                </div>
+                                <div class="spec-card glass">
+                                    <h3>Layer B: Buddy Radio Mesh</h3>
+                                    <p>Creating a <strong>dynamic community bubble</strong> for real-time peer-to-peer
+                                        support.</p>
+                                    <ul>
+                                        <li>Hyper-Local GPS Networking</li>
+                                        <li>Wesbank FML Emergency Sync</li>
+                                    </ul>
+                                </div>
+                                <div class="spec-card glass">
+                                    <h3>Layer C: Community Rewards Engine</h3>
+                                    <p>Turning safety into <strong>tangible family value</strong> through shared
+                                        milestones.</p>
+                                    <ul>
+                                        <li>SME Team Goals</li>
+                                        <li>Home & Family Perks (Vouchers, Fuel, Data)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="spec-footer glass">
+                                <blockquote>"This solution converts 'Fleet Management' into 'Family Management'
+                                    (empowering people)."</blockquote>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Vehicle Detail Modal -->
+        <div id="vehicleModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="vehicleDetails">
+                    <!-- Vehicle details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
